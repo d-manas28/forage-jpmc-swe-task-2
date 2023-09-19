@@ -14,7 +14,8 @@ interface IProps {
  * Perspective library adds load to HTMLElement prototype.
  * This interface acts as a wrapper for Typescript compiler.
  */
-interface PerspectiveViewerElement {
+// If we want to use the perspectiveElement as an HTMLElement we need to extend the HTMLElement class 
+interface PerspectiveViewerElement extends HTMLElement{
   load: (table: Table) => void,
 }
 
@@ -32,7 +33,7 @@ class Graph extends Component<IProps, {}> {
 
   componentDidMount() {
     // Get element to attach the table from the DOM.
-    const elem: PerspectiveViewerElement = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
+    const elem = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
 
     const schema = {
       stock: 'string',
@@ -46,9 +47,24 @@ class Graph extends Component<IProps, {}> {
     }
     if (this.table) {
       // Load the `table` in the `<perspective-viewer>` DOM reference.
-
-      // Add more Perspective configurations here.
       elem.load(this.table);
+
+      // Let's add more attributes to plot the perfect graph for real time data feed
+      // since we need to view continous line for the stocks, we are using y_line
+      elem.setAttribute('view', 'y_line');
+      // we need stocks in columns it will help us distinguish between stocks here, hence column-pivot uses stock attribute 
+      elem.setAttribute('column-pivots', '["stock"]');
+      // We need the stocks in different timelines since their initial timestamps hence in row-pivots uses timestamp
+      elem.setAttribute('row-pivots', '["timestamp"]');
+      // For now, we need to compare only the stocks' top ask prices
+      elem.setAttribute('columns', '["top_ask_price"]');
+      // aggregates helps us in handling the duplicates here
+      elem.setAttribute('aggregates', `
+      {"stock":"distinct count",
+      "top_ask_price":"avg",
+      "top_bid_price":"avg",
+      "timestamp":"distinct count"}`);
+
     }
   }
 

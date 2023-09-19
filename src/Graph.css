@@ -1,4 +1,5 @@
+/* Changing the size of the graph */
 perspective-viewer {
-  height: 50vh;
-  width: 700px;
+  height: 350px;
+  width: 800px;
 }
